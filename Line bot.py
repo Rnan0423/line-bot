@@ -6,21 +6,20 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+import os
 
 # 你的 LINE 機器人金鑰
 CHANNEL_ACCESS_TOKEN = 'ofjYBMQ0NxxzZ6yyvRtGRkdPpIhvIBCh1Jt9bhTosTS38qdcAxfffdU+oTRVQnTzJ/u0F3VWgWSKF/zLNHOSnIQyGgDuUJVOoduAVQRTTSlpAs/8yU+lyaf6mj2sFKlclD38ObZxPatk/MdR1j7j3gdB04t89/1O/w1cDnyilFU='
 CHANNEL_SECRET = 'e4306d91aba6cce87b00a5dcb50ce13e'
 
-# Flask 初始化
 app = Flask(__name__)
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
-# Google Sheet 查班表功能
 def get_schedule_from_sheet(date_str):
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_name(
-    'e:/Python/optimum-nebula-352617-94daf41826d2.json', scope)
+        'e:/Python/optimum-nebula-352617-94daf41826d2.json', scope)
     client = gspread.authorize(creds)
 
     sheet = client.open_by_key('15PEJqNlnVfePT7RyyxvtXGLu7QMjJz_A5V5eAKzkn_g').sheet1
@@ -31,7 +30,6 @@ def get_schedule_from_sheet(date_str):
             return row['班表內容']
     return "查無排班資料"
 
-# LINE webhook 接收處理
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
@@ -44,7 +42,6 @@ def callback():
 
     return 'OK'
 
-# 訊息處理邏輯
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text.strip()
@@ -63,6 +60,7 @@ def handle_message(event):
 
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
 
-# 啟動伺服器
+# 修改這裡以符合 Render 的環境需求
 if __name__ == "__main__":
-    app.run(port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
