@@ -18,8 +18,8 @@ handler = WebhookHandler(CHANNEL_SECRET)
 
 def get_schedule_from_sheet(date_str):
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name(
-        'e:/Python/optimum-nebula-352617-94daf41826d2.json', scope)
+    json_path = '/etc/secrets/optimum-credentials.json'  # Render Secret File 預設路徑
+    creds = ServiceAccountCredentials.from_json_keyfile_name(json_path, scope)
     client = gspread.authorize(creds)
 
     sheet = client.open_by_key('15PEJqNlnVfePT7RyyxvtXGLu7QMjJz_A5V5eAKzkn_g').sheet1
@@ -60,7 +60,7 @@ def handle_message(event):
 
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
 
-# 修改這裡以符合 Render 的環境需求
+# Render 運行設定
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
