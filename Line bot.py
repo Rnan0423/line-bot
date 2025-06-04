@@ -18,6 +18,11 @@ app = Flask(__name__)
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
+# 👉 加入 keep-alive route
+@app.route("/", methods=["GET"])
+def keep_alive():
+    return "I'm alive!", 200
+
 def get_schedule_from_sheet(date_str):
     # 從環境變數取得 JSON 並轉成 io 物件供 gspread 使用
     json_str = os.environ.get("GOOGLE_SHEET_CREDENTIAL")
